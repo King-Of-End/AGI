@@ -22,7 +22,7 @@ max_steps = 0
 st = time.time()
 obs, info = env.reset(seed=1)
 hidden = torch.zeros(15, device=device)
-for _ in range(5000):
+for _ in range(5000000):
     action, hidden = model(torch.tensor(obs.reshape(SIZE ** 2 + 1), device=device, dtype=torch.float32), hidden)
     obs, reward, terminated, truncated, info = env.step(torch.argmax(action))
 

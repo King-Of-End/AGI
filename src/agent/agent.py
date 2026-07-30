@@ -16,5 +16,4 @@ class Agent(nn.Module):
         new_hidden_state = out[4:]
         return logits, new_hidden_state
 
-    # @torch.no_grad()
-    # def hebb(self):
+
