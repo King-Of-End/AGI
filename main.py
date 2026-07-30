@@ -1,3 +1,5 @@
+import time
+
 import gymnasium as gym
 import torch
 
@@ -7,9 +9,9 @@ SIZE = 10
 
 gym.register(id="GridWorld-v0", entry_point="env:GridWorld")
 
-env = gym.make("GridWorld-v0", render_mode="human", size=SIZE)
+env = gym.make("GridWorld-v0", size=SIZE)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu" if torch.cuda.is_available() else "cpu")
 print(f"Используется: {device}")
 
 model = Agent(SIZE)
@@ -17,6 +19,7 @@ model.to(device)
 
 max_steps = 0
 
+st = time.time()
 obs, info = env.reset(seed=1)
 hidden = torch.zeros(15, device=device)
 for _ in range(5000):
@@ -27,4 +30,5 @@ for _ in range(5000):
         max_steps = max(info['step'], max_steps)
         obs, info = env.reset()
 env.close()
+print(time.time() - st)
 print(max_steps)

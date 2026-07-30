@@ -54,7 +54,7 @@ class AgentPos:
 class GridWorld(gym.Env):
     metadata = {
         'render_modes': ['human', 'rgb_array'],
-        'render_fps': 4000
+        'render_fps': 1000000000
     }
 
     def __init__(
