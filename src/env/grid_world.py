@@ -70,7 +70,7 @@ class GridWorld(gym.Env):
         self.observation_space: spaces.Box = spaces.Box(
             low=0,
             high=np.inf,
-            shape=(size ** 2 + 1, 1),
+            shape=(size ** 2 + 1, ),
             dtype=np.float32
         )
 
@@ -162,7 +162,7 @@ class GridWorld(gym.Env):
         grid = self.grid.copy()
         grid[self.agent_pos.pos_np] = AGENT
         grid.reshape(self.size ** 2)
-        ng = np.append(grid, np.float32(self.hunger))
+        ng = np.append(grid, np.float32(self.hunger)).reshape(self.size ** 2 + 1)
         return ng
 
     def _get_info(self):
