@@ -1,4 +1,3 @@
-import random
 import gymnasium as gym
 import torch
 
@@ -16,13 +15,16 @@ print(f"Используется: {device}")
 model = Agent(SIZE)
 model.to(device)
 
+max_steps = 0
+
 obs, info = env.reset(seed=1)
 hidden = torch.zeros(15, device=device)
 for _ in range(5000):
-    action, hidden = model(torch.tensor(obs.reshape(SIZE ** 2), device=device), hidden)
+    action, hidden = model(torch.tensor(obs.reshape(SIZE ** 2 + 1), device=device), hidden)
     obs, reward, terminated, truncated, info = env.step(torch.argmax(action))
 
     if terminated:
-        print(info)
+        max_steps = max(info['step'], max_steps)
         obs, info = env.reset()
 env.close()
+print(max_steps)

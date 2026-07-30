@@ -69,8 +69,8 @@ class GridWorld(gym.Env):
 
         self.observation_space: spaces.Box = spaces.Box(
             low=0,
-            high=2,
-            shape=(size, size),
+            high=np.inf,
+            shape=(size ** 2 + 1, 1),
             dtype=np.float32
         )
 
@@ -161,7 +161,9 @@ class GridWorld(gym.Env):
         """Формирует наблюдение. Всегда возвращает копию."""
         grid = self.grid.copy()
         grid[self.agent_pos.pos_np] = AGENT
-        return grid
+        grid.reshape(self.size ** 2)
+        ng = np.append(grid, self.hunger)
+        return ng
 
     def _get_info(self):
         """Формирует диагностику."""
