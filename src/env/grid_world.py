@@ -162,7 +162,7 @@ class GridWorld(gym.Env):
         grid = self.grid.copy()
         grid[self.agent_pos.pos_np] = AGENT
         grid.reshape(self.size ** 2)
-        ng = np.append(grid, self.hunger)
+        ng = np.append(grid, np.float32(self.hunger))
         return ng
 
     def _get_info(self):
