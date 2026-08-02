@@ -11,6 +11,7 @@ dependencies = [
     "gymnasium[accept-rom-license,atari]>=1.3.0",
     "numpy>=2.5.1",
     "opencv-python>=5.0.0.93",
+    "pydantic>=2.13.4",
     "rocm",
     "rocm-sdk-core",
     "rocm-sdk-devel",
