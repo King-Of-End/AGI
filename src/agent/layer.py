@@ -1,12 +1,12 @@
 import torch.nn as nn
 
-from agent import Genome
+from .genome import Genome
 
 
 class Layer(nn.Linear):
-    def __init__(self, in_features, out_features, bias=True, genome: Genome=None):
-        super().__init__(in_features, out_features, bias)
-        self.genome = genome or Genome.random()
+    def __init__(self, in_features, out_features, bias=True, genome: Genome=None, device: str = "cpu"):
+        super().__init__(in_features, out_features, bias, device=device)
+        self.genome = genome or Genome.random(device=device)
 
     def forward(self, layer_input):
         layer_output = super().forward(layer_input)

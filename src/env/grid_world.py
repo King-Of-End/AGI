@@ -8,7 +8,7 @@ EMPTY = 0.0
 FOOD = 1.0
 AGENT = 2.0
 
-MAX_HUNGER = 10
+MAX_HUNGER = 100
 FOOD_AMOUNT = 5
 
 CELL = 64   # px на клетку

@@ -1,4 +1,5 @@
 import random
+from typing import Any
 
 import numpy as np
 import torch
@@ -14,8 +15,10 @@ class Genome(BaseModel):
     d: float = Field(0.0)
     lr: float = Field(1e-3)
 
+    device: Any = Field(None)
+
     @staticmethod
-    def random() -> 'Genome':
+    def random(device: str = 'cpu') -> 'Genome':
         def r(mu=0.0, sigma=0.5): return random.gauss(mu, sigma)
 
         return Genome(
@@ -23,7 +26,8 @@ class Genome(BaseModel):
             b=r(),
             c=r(),
             d=r(),
-            lr=abs(r(1e-3, 5e-4))
+            lr=abs(r(1e-3, 5e-4)),
+            device=device,
         )
 
     def mutate(self) -> 'Genome':
@@ -33,14 +37,15 @@ class Genome(BaseModel):
             b=self.b + r(),
             c=self.c + r(),
             d=self.d + r(),
-            lr=abs(self.lr + abs(r(1e-4, 5e-5)))
+            lr=abs(self.lr + r(1e-4, 5e-5)),
+            device=self.device,
         )
 
     def forward(self, layer_input: torch.Tensor, layer_output: torch.Tensor) -> torch.Tensor:
         dw = self.lr * (
-                self.a * np.outer(layer_output, layer_input) +
+                self.a * torch.outer(layer_output, layer_input) +
                 self.b * layer_input[None, :] +
                 self.c * layer_output[:, None] +
                 self.d
         )
-        return torch.from_numpy(dw)
+        return dw
