@@ -24,7 +24,7 @@
 Смена формы наблюдения — переопредели _build_sensor() или собери сенсор
 из sensors.py и присвой world.sensor до reset().
 
-Второй путь — через gym, обращение как к старому GridWorld:
+Второй путь — через gym-обёртку:
 
     import gymnasium as gym
     from world import register_all

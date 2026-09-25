@@ -1,42 +1,72 @@
+"""Минимальный прогон мира через gym без рендера.
+
+Здесь виден весь каркас подключения разума к миру: кто держит умы, кто
+заводит их при рождении и удаляет при смерти. Сегодня на этом месте
+заглушка GreedyMind — верхняя отметка: так выглядит мир, в котором таксис
+уже найден. Настоящий Mind, когда он появится, встанет ровно сюда —
+в фабрику ниже и в ветку рождения через spawn(). Мост от агента с
+forward()/mutate() к контракту act()/spawn() — world.adapters.MindAdapter.
+
+    python3 main.py --world forage --steps 200000
+    python3 main.py --mind random --seed 7
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+
 import gymnasium as gym
-import torch
+import numpy as np
 
-from agent import Agent
-from world import register_all
+from world import list_worlds, register_all
+from world.gym_env import gym_id
+from world.stubs import GreedyMind, RandomMind
 
-register_all()
-
-env = gym.make("Life/Patches-v0",
-               size=40,
-               seed=42,
-               initial_population=150,
-               max_food=500,
-               energy_at_birth=80,
-               render_mode="human")
-
-device = torch.device("cpu" if torch.cuda.is_available() else "cpu")
-
-n_in  = env.unwrapped.single_observation_space.shape[0]
-n_act = env.unwrapped.single_action_space.n
-
-obs, info = env.reset()
+STUBS = {"greedy": GreedyMind, "random": RandomMind}
 
 
-agents = {}
-for agent_index in info['ids']:
-    agents[agent_index] = Agent(n_in, n_act, device)
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--world", default="forage", choices=list_worlds())
+    ap.add_argument("--mind", default="greedy", choices=sorted(STUBS))
+    ap.add_argument("--size", type=int, default=20)
+    ap.add_argument("--steps", type=int, default=100_000)
+    ap.add_argument("--seed", type=int, default=1)
+    args = ap.parse_args()
 
-truncated = terminated = False
+    register_all()
+    env = gym.make(gym_id(args.world), size=args.size, seed=args.seed)
+    obs, info = env.reset(seed=args.seed)
 
-while not truncated and not terminated:
-    for parent, child in info['born']:
-        agents[child] = agents[parent].mutate()
-        print('я родился')
-    for died in info['died']:
-        del agents[died]
-    actions = []
-    for observation_index, agent_index in enumerate(info['ids']):
-        actions.append(int(agents[agent_index](torch.from_numpy(obs[observation_index]).to(device))))
-    obs, _reward_unusable, truncated, terminated, info = env.step(actions)
+    rng = np.random.default_rng(args.seed)
+    stub = STUBS[args.mind]
 
-env.close()
+    # Разумы держит вызывающий — мир их не хранит и не создаёт.
+    minds = {i: stub(env.unwrapped.world.action_size, rng) for i in info["ids"]}
+
+    for _ in range(args.steps):
+        actions = [minds[i].act(o) for i, o in zip(info["ids"], obs)]
+        obs, _reward_unusable, terminated, truncated, info = env.step(actions)
+
+        for parent, child in info["born"]:
+            minds[child] = minds[parent].spawn(rng)
+        for died in info["died"]:
+            del minds[died]
+
+        if terminated or truncated:
+            break
+
+    print(
+        f"t={info['tick']} популяция={info['population']} "
+        f"еда={info['food']} "
+        f"поколение={int(info['generation'].max()) if info['population'] else 0}"
+    )
+    env.close()
+
+
+if __name__ == "__main__":
+    main()
