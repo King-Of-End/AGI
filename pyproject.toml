@@ -7,6 +7,11 @@ dependencies = [
     "numpy>=2.5.1",
 ]
 
+# Графический вид и игра человеком (--view arcade). Мир остаётся чистым
+# numpy: arcade нужен только этому пути, поэтому держится отдельным экстрой.
+[project.optional-dependencies]
+play = ["arcade>=3.0"]
+
 [dependency-groups]
 dev = ["pytest>=9.0"]
 

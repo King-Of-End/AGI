@@ -470,13 +470,15 @@ python3 experiments/phase0_report.py binding       # пять метрик св�
 python3 experiments/phase0_report.py sensory       # числа для решений по спец.
 python3 experiments/phase0_report.py metabolic     # оправданы ли 128 каналов
 
-python3 -m phase0.play --view terminal --difficulty A3   # играть руками
+python3 -m phase0.play --view terminal --difficulty A3   # играть руками (терминал)
+python3 -m phase0.play --view arcade                     # графика (uv sync --extra play)
 python3 -m phase0.play --view terminal --blind           # ТОЛЬКО сетчатка
 
-python3 -m pytest tests/ -q                        # 94 теста
+python3 -m pytest tests/ -q                        # 109 тестов
 ```
 
-Зависимость мира — только `numpy`.
+Зависимость мира — только `numpy` (arcade — опциональный экстрой `play`
+для графического вида, на контракт и физику не влияет).
 
 Код прошлой идеи удалён при чистке; последнее состояние — коммит 075a00b
 в истории git (замеры `experiments/diagnose.py` и `experiments/compete.py`

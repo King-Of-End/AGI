@@ -114,21 +114,24 @@ def play_terminal(cfg: Config, fps: float = 20.0, blind: bool = False) -> None:
             return
 
 
-def play_arcade(cfg: Config) -> None:
-    """Графический вариант — НЕ РЕАЛИЗОВАН.
+def play_arcade(cfg: Config, speed: float = 1.0, blind: bool = False) -> None:
+    """Графический вариант. Реализация — play_arcade.py.
 
-    Честнее сказать это прямо, чем оставить непроверенный код: arcade в
-    контейнере, где писался мир, не устанавливается, и отладить графический
-    путь было негде. Терминальный вид даёт все три обязательных вида Части
-    10.4 и работает без дисплея, включая ssh.
+    Импорт ленивый: play_arcade тянет arcade, а тот — опциональная
+    зависимость (`uv sync --extra play`). Терминальный вид остаётся
+    доступен без неё и без дисплея, включая ssh.
     """
-    raise SystemExit(
-        "Графический вид пока не реализован (arcade недоступен там, где мир "
-        "писался, и непроверенный код тут хуже его отсутствия).\n"
-        "Терминальный вид умеет всё то же:\n"
-        "  python3 -m phase0.play --view terminal\n"
-        "  python3 -m phase0.play --view terminal --blind   # только сетчатка"
-    )
+    try:
+        from .play_arcade import run
+    except ImportError as exc:
+        raise SystemExit(
+            f"Графический вид требует библиотеку arcade (импорт не удался: {exc}).\n"
+            "Установка:  uv sync --extra play   или   pip install arcade\n"
+            "Терминальный вид умеет всё то же и работает без дисплея:\n"
+            "  python3 -m phase0.play --view terminal\n"
+            "  python3 -m phase0.play --view terminal --blind   # только сетчатка"
+        )
+    run(cfg, speed=speed, blind=blind)
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -137,13 +140,15 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--mode", choices=("A", "B", "C"), default="A")
     ap.add_argument("--difficulty", default="A1")
     ap.add_argument("--fps", type=float, default=20.0)
+    ap.add_argument("--speed", type=float, default=1.0,
+                    help="множитель темпа мира для arcade (0.125..16)")
     ap.add_argument("--blind", action="store_true",
                     help="показывать ТОЛЬКО сетчатку — настоящая проверка 0.6")
     args = ap.parse_args(argv)
 
     cfg = Config(mode=Mode[args.mode], difficulty=args.difficulty)
     if args.view == "arcade":
-        play_arcade(cfg)
+        play_arcade(cfg, speed=args.speed, blind=args.blind)
     else:
         play_terminal(cfg, fps=args.fps, blind=args.blind)
 
