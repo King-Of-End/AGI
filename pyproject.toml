@@ -1,13 +1,10 @@
 [project]
 name = "agi"
 version = "0.1.0"
-description = "Эволюционные миры без награды и backprop: тела, Minds с act()/spawn(), правило пластичности внутри агента"
+description = "Мир Фазы 0 по world_spec_phase01.md: событийный контракт inbox/outbox, зрительные тракты, канал истины. Зависимость одна — numpy"
 requires-python = ">=3.12"
 dependencies = [
-    "arcade>=3.3.3",
-    "gymnasium>=1.3.0",
     "numpy>=2.5.1",
-    "pillow>=11.0",
 ]
 
 [dependency-groups]

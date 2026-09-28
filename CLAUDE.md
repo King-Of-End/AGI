@@ -83,7 +83,8 @@ C — еда питательна только в ритме.
 но не подставляй готовый сниппет**, пока прямо не попросили. Формулу
 написать можно. Строчку на Python вместо автора — нет.
 
-`src/world/` — мир прошлой идеи. Не трогай и не удаляй без спроса.
+Код прошлой идеи (`src/world/`, старые эксперименты) удалён при чистке;
+последнее его состояние — коммит 075a00b в истории git.
 
 ---
 
@@ -472,11 +473,11 @@ python3 experiments/phase0_report.py metabolic     # оправданы ли 128
 python3 -m phase0.play --view terminal --difficulty A3   # играть руками
 python3 -m phase0.play --view terminal --blind           # ТОЛЬКО сетчатка
 
-python3 -m pytest tests/test_phase0.py -q          # 82 теста
-python3 -m pytest tests/ -q                        # вместе со старым миром
+python3 -m pytest tests/ -q                        # 94 теста
 ```
 
 Зависимость мира — только `numpy`.
 
-Архив прошлой идеи: `python3 experiments/diagnose.py`,
-`python3 experiments/compete.py`.
+Код прошлой идеи удалён при чистке; последнее состояние — коммит 075a00b
+в истории git (замеры `experiments/diagnose.py` и `experiments/compete.py`
+удалены вместе с ним).
