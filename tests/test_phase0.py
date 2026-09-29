@@ -327,6 +327,28 @@ def test_dense_channels_emit_every_tick():
     assert len(energy) == 1
 
 
+def test_sensor_noise_corrupts_reading_not_filter_state():
+    """Шум портит ПОКАЗАНИЕ, а не датчик: состояние ФНЧ остаётся чистым.
+
+    Раньше шум прибавлялся прямо к self._proprio, и состояние фильтра плыло:
+    показание становилось красным шумом (автокорреляция ~0.75) с дисперсией
+    в 2.3 раза выше заданной. При неподвижном теле состояние обязано остаться
+    ровно нулевым, а шумить должны только доставленные значения."""
+    cfg = Config(sensor_noise_sigma=0.1)
+    world = World(cfg)
+    ch = Channels(cfg)
+    readings = []
+    for _ in range(500):
+        world.step()
+        for e in world.inbox.drain():
+            if ch.proprio_start <= e.channel < ch.proprio_start + 4:
+                readings.append(e.value)
+    # тело неподвижно, истинная проприоцепция 0 -> чистое состояние фильтра
+    assert float(np.abs(world._proprio).max()) == 0.0
+    # показания при этом шумят, а не вырождаются в ноль
+    assert max(abs(v) for v in readings) > 1e-6
+
+
 def test_colour_axis_separates_kinds():
     from phase0.items import Item
     from phase0.retina import Retina

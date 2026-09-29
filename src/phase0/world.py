@@ -236,11 +236,16 @@ class World:
         target = np.array([self.body.v_forward, self.body.v_lateral,
                            self.body.omega, self.body.speed], dtype=np.float64)
         self._proprio += self._alpha_proprio * (target - self._proprio)
+        # Шум портит ПОКАЗАНИЕ, а не датчик: состояние ФНЧ остаётся чистым,
+        # шум прибавляется на выходе. Раньше шум вливался в состояние, и
+        # показание становилось красным шумом: дисперсия sigma^2/(1-(1-a)^2)
+        # — при tau=50мс в 2.3 раза заданной, автокорреляция ~0.75.
+        proprio_out = self._proprio
         if cfg.sensor_noise_sigma > 0.0:
-            self._proprio = self._proprio + self.rng.sensor_noise.normal(
+            proprio_out = self._proprio + self.rng.sensor_noise.normal(
                 0.0, cfg.sensor_noise_sigma, 4)
         self._deliver([Event(tick, ch.proprio_start + i, float(v))
-                       for i, v in enumerate(self._proprio)])
+                       for i, v in enumerate(proprio_out)])
 
         # Интероцепция. ENERGY даётся напрямую и это законно: это ощущение
         # себя, а не подсказка про среду.
